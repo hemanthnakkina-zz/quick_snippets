@@ -54,8 +54,8 @@ logger.setLevel(log_level)
 # set console logging. Change to file by changing to FileHandler
 stream_handle = logging.StreamHandler()
 # Set logging format
-formatter = logging.Formatter('(%(name)s)[%(levelname)s]%(filename)s' +
-                              '[%(lineno)d]:(%(funcName)s)\n:%(message)s')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(filename)s -- '
+                              '%(message)s')
 stream_handle.setFormatter(formatter)
 logger.addHandler(stream_handle)
 

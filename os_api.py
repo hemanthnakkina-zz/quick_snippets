@@ -124,10 +124,13 @@ class Runner(Base):
             if 'data' in tc:
                 data.update(self.load_json_data(tc['data']))
 
-            repeat = tc.get('repeat', self.repeat)
-
             op = getattr(gc, tc['operation'])
-            count = 0
+            if tc['duration'] > 0:
+                repeat = time() + 60 * tc['duration']
+                count = time()
+            else:
+                count = 0
+                repeat = tc.get('repeat', self.repeat)
             while True:
                 # Negative value will make this run infinte
                 # number of times, as required.
@@ -139,7 +142,10 @@ class Runner(Base):
                             "%2.4f" % (tc['name']+'-'+str(count + 1),
                                        tc_status, time_lapse)
                             )
-                count += 1
+                if tc['duration'] > 0:
+                    count = time()
+                else:
+                    count += 1
 
 
 class GenericClient(Base):
@@ -227,8 +233,10 @@ class GenericClient(Base):
         return response
 
 
-def main(password):
+def main(inputs):
     """ Main method """
+    password = inputs[1]
+    duration = int(inputs[2]) if len(inputs) > 2 else 0
     auth = {
       'auth_url': 'https://openstack.local/v3',
       'username': 'admin',
@@ -246,6 +254,7 @@ def main(password):
         'url': '/servers',
         'concurrency': 1,
         'repeat': 30000,
+        'duration': duration,
       },
       {
        'name': 'glance_image_list',
@@ -254,6 +263,7 @@ def main(password):
        'url': '/v2/images',
        'concurrency': 1,
        'repeat': 100,
+       'duration': duration,
        },
     ]
 
@@ -263,4 +273,4 @@ def main(password):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv)
